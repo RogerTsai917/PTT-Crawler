@@ -1,7 +1,7 @@
 # PTT Crawler
 
 根據[jwlin](https://github.com/jwlin)的[ptt-web-crawler](https://github.com/jwlin/ptt-web-crawler)改寫
-* 根據指定頁數爬取[PTT](https://www.ptt.cc/bbs/index.html)網頁版個版的文章，並依照日期做歸檔
+* 根據指定頁數爬取[PTT](https://www.ptt.cc/bbs/index.html)網頁版各版的文章，並依照日期做歸檔
 * 過濾資料內空白、空行及特殊字元
 * JSON 格式輸出
 * 修復部分文章抓不到IP的BUG
@@ -27,7 +27,7 @@
       {
         "push_content": 推文內容,
         "push_ip": 推文位址,
-		"push_datetime": 推文時間,
+		    "push_datetime": 推文時間,
         "push_tag": 推/噓/→ ,
         "push_userid": 推文者 ID
       },
