@@ -42,8 +42,22 @@
 python historyDataCrawler.py  看板名稱 起始頁數 結束頁數 (設為負數則以倒數第幾頁計算) 
 ```
 
-### 範例
+### 範例1
 
 爬取 Gossiping 板第 1 頁 (https://www.ptt.cc/bbs/Gossiping/index1.html) 
 到第 20 頁 (https://www.ptt.cc/bbs/Gossiping/index20.html) 的內容，
 依照日期做歸檔，並輸出至 `Gossiping` 目錄下
+
+```commandline
+python historyDataCrawler.py  Gossiping 1 2
+```
+
+### 範例2
+
+爬取 NBA 板第 6500 頁 (https://www.ptt.cc/bbs/NBA/index6500.html) 
+到最新頁的內容，
+依照日期做歸檔，並輸出至 `NBA` 目錄下
+
+```commandline
+python historyDataCrawler.py  NBA 6500 -1
+```
