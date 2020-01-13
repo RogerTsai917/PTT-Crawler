@@ -13,6 +13,8 @@ from six import u
 __version__ = '1.0'
 
 projectPath = os.path.dirname(__file__)
+PttData_directory_name = 'PttData'
+historyData = 'HistoryData'
 
 # if python 2, disable verify flag in requests.get()
 VERIFY = True
@@ -33,8 +35,8 @@ class PttWebCrawler(object):
         self.contentCallback = contentCallback
 
         # check and create file
-        checkAndCreateDirectory(projectPath+'\\'+board)
-        checkAndCreateDirectory(projectPath+'\\'+board +'\\'+'historyData')
+        checkAndCreateDirectory(os.path.join(projectPath, PttData_directory_name, board))
+        checkAndCreateDirectory(os.path.join(projectPath, PttData_directory_name, board, historyData))
         # means crawl range of articles
         if iOrA:
             start, end = int(start), int(end)
@@ -243,7 +245,7 @@ class PttWebCrawler(object):
         return self.filename
 
     def saveJsonFile(self, board, jsonlist, current_date):
-        fileName = projectPath + '\\' + board + '/historyData/' + str(current_date) + '.json'
+        fileName = os.path.join(projectPath, PttData_directory_name, board, historyData, (str(current_date)+'.json'))
         if os.path.isfile(fileName):
             with open(fileName, 'r', encoding='utf-8') as File:
                 jsonFile = json.load(File)

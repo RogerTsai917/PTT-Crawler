@@ -9,7 +9,6 @@ import codecs
 import os
 from bs4 import BeautifulSoup
 from six import u
-import pymongo
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -28,11 +27,6 @@ filter_list_file_name = 'filter_list.txt'
 PttData_directory_name = 'PttData'
 dailyData = 'DailyData'
 historyData = 'HistoryData'
-
-
-dbclient = pymongo.MongoClient("mongodb://140.120.13.244:27018/")
-db = dbclient['Fb']
-db_pagelist = db['pagelist']
 
 
 def checkAndCreateDirectory(path):
@@ -345,65 +339,7 @@ def datetime2timestamp(date):
     date_time = datetime.datetime.strptime(date, '%a %b %d %H:%M:%S %Y')
     time_stamp = datetime.datetime.timestamp(date_time)
     return str(int(time_stamp))
-        
-
-def updateDataToMongodb(board, filter_list):
-    today = getToday()
-    todayFilePath = os.path.join(projectPath, PttData_directory_name, board, dailyData, (str(today)+'.json'))
-    if os.path.isfile(todayFilePath):
-        toadyJson = getJson(todayFilePath)
-        for article in toadyJson['articles']:
-            content_data = {}
-            content_data['article_id'] = article['article_id']
-            content_data['article_title'] = article['article_title']
-            content_data['Name'] = article['author']
-            content_data['board'] = article['board']
-            try:
-                content_data['Content'] =article['article_title'] + '\n' + article['content']
-            except:
-                content_data['Content'] =article['content']
-            try:
-                times_tamp =datetime2timestamp(article['date'])
-            except:
-                continue
-            content_data['Time'] = times_tamp
-            content_data['ip'] = article['ip']
-            content_data['Type'] = 'content'
-            link = 'https://www.ptt.cc/bbs/'+board+'/'+article['article_id']+'.html'
-            content_data['Postlink'] = link
-            db_board_contnet = db[board+'_content']
-            db_board_contnet.update(content_data, content_data, upsert=True)
-
-            db_board_contnet_filtered = db[board+'_content_filtered']
-            for filter_word in filter_list:
-                if filter_word in content_data['Content']:
-                    db_board_contnet_filtered.update(content_data, content_data, upsert=True)
-                    break
-
-            db_board_comment = db[board+'_comment']
-            db_board_comment_filtered = db[board+'_comment_filtered']
-            for message in article['messages']:
-                comment_data = {}
-                comment_data['article_id'] = article['article_id']
-                comment_data['article_title'] = article['article_title']
-                comment_data['Name'] = message['push_userid']
-                comment_data['Content'] = message['push_content']
-                comment_data['ip'] = message['push_ip']
-                comment_data['Time'] = times_tamp
-                comment_data['Postlink'] = link
-                comment_data['Type'] = 'comment'
-                db_board_comment.update(comment_data, comment_data, upsert=True)
-
-                for filter_word in filter_list:
-                    if filter_word in comment_data['Content']:
-                        db_board_comment_filtered.update(comment_data, comment_data, upsert=True)
-                        break
-                
-
-    else:
-        print('上傳時找不到檔案', board, str(today))
-
-
+    
 def crawlPttBoards(board_list, day_range=2):
     for board in board_list:
         if board[0] != '':
@@ -411,29 +347,6 @@ def crawlPttBoards(board_list, day_range=2):
             getNewArticles(board[0], day_range)
             storeToHistory(board[0])
             print('=========================================\n')
-
-def updatePageListToMongodb(board_list):
-    print('start updating page list')
-    for board in board_list:
-        name = board[0] + ' ' + board[1]+ ' 文章'
-        id = board[0]+'_content'
-        data = {name: id}
-        db_pagelist.update(data, data, upsert=True)
-        name = board[0] + ' ' + board[1]+ ' 留言'
-        id = board[0]+'_comment'
-        data = {name: id}
-        db_pagelist.update(data, data, upsert=True)
-        name = board[0] + ' ' + board[1]+ ' 文章(已過濾)'
-        id = board[0]+'_content_filtered'
-        data = {name: id}
-        db_pagelist.update(data, data, upsert=True)
-        name = board[0] + ' ' + board[1]+ ' 留言(已過濾)'
-        id = board[0]+'_comment_filtered'
-        data = {name: id}
-        db_pagelist.update(data, data, upsert=True)
-
-    print('finished updating page list')
-    print('=========================================\n')
 
 
 def updatePostDetailToMongodb(board_list, filter_list):
@@ -446,7 +359,3 @@ def updatePostDetailToMongodb(board_list, filter_list):
 if __name__ == "__main__":
     board_list = readBoardList()
     crawlPttBoards(board_list, day_range=2)
-    # updatePageListToMongodb(board_list)
-    # filter_list = readFilterList()
-    # updatePostDetailToMongodb(board_list, filter_list)
-    
